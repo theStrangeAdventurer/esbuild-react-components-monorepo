@@ -1,0 +1,26 @@
+{
+    "name": "@esbuild-libs/button",
+    "version": "0.1.0",
+    "description": "A button component",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "scripts": {
+        "clean": "rm -rf \"$PWD/dist\""
+    },
+    "files": [
+        "dist/*",
+        "src/*"
+    ],
+    "config": {
+        "entryPoints": [
+            "src/index.tsx"
+        ]
+    },
+    "dependencies": {
+        "@esbuild-libs/typography": ">=0.x"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
+    }
+}

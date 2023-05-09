@@ -1,0 +1,116 @@
+#!/usr/bin/env node
+const esbuild = require('esbuild');
+const cssModulesPlugin = require('esbuild-css-modules-plugin');
+const ts = require('typescript');
+const rootTsConfig = require('../tsconfig.json');
+const path = require('path');
+const fs = require('fs');
+
+
+const packagesDir = path.resolve(process.cwd(), 'packages');
+const packages = fs.readdirSync(packagesDir).reduce((acc, dir) => {
+  const pkg = require(path.join(packagesDir, dir, 'package.json'));
+  if (Boolean(pkg)) {
+    acc.push(Object.assign(pkg, { config: { ...(pkg.config || {}), dir } }));
+  }
+
+  return acc;
+}, []);
+
+const getOutDir = (out) => out.split('/').slice(0, -1).join('/')
+
+const inOutFiles = packages.reduce((acc, pkg) => {
+  const cjsOutDir = path.join(packagesDir, pkg.config.dir, getOutDir(pkg.main));
+  const esmOutDir = path.join(packagesDir, pkg.config.dir, getOutDir(pkg.module));
+  const entryFile = path.join(packagesDir, pkg.config.dir, pkg.config.entryPoints[0]);
+
+  acc.push({
+    cjsOutDir,
+    esmOutDir,
+    entryFile,
+    pkg,
+  });
+  return acc;
+}, []);
+
+const getDepsArr = (pkg) =>
+  Array.from(
+    new Set([
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ])
+  )
+
+const cssModules = (inject = true) => cssModulesPlugin({
+  inject,
+  v2: true,
+  v2CssModulesOption: {
+    pattern: `[local]_[hash]`
+  }
+});
+
+const buildPromises = inOutFiles.reduce((acc, { cjsOutDir, esmOutDir, entryFile, pkg }) => {
+  
+  // cjs build
+  acc.push(() => esbuild.build({
+    entryPoints: [entryFile],
+    bundle: true,
+    platform: 'node',
+    target: 'node14',
+    format: 'cjs',
+    outdir: cjsOutDir,
+    external: getDepsArr(pkg),
+    sourcemap: true,
+    minify: false,
+    logLevel: 'info',
+    plugins: [cssModules(false)],
+    tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+  }));
+
+  // esm build
+  acc.push(() => esbuild.build({
+    entryPoints: [entryFile],
+    bundle: true,
+    platform: 'neutral',
+    target: 'es2015',
+    format: 'esm',
+    outdir: esmOutDir,
+    external: getDepsArr(pkg),
+    sourcemap: true,
+    treeShaking: true,
+    minify: false,
+    logLevel: 'info',
+    banner: {
+      js: `import './index.css';`
+    },
+    tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+    plugins: [
+      cssModules(false),
+      {
+        name: 'DeclarationGenerator',
+        setup(build) {
+          build.onEnd((_result) => {
+            console.log('Generating declaration files...', pkg.name);
+            const result = ts.createProgram({
+              rootNames: [entryFile],
+              options: {
+                emitDeclarationOnly: true,
+                declaration: true,
+                declarationDir: esmOutDir,
+              }
+            }).emit();
+            console.log('Complete declaration files...', pkg.name);
+          });
+        },
+      },
+    ]
+  }));
+
+  return acc;
+}, []);
+
+const run = async () => {
+  await Promise.all(buildPromises.map((build) => build()));
+};
+
+run();

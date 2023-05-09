@@ -1,0 +1,23 @@
+{
+    "name": "@esbuild-libs/typography",
+    "version": "0.1.0",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "files": [
+        "dist/*",
+        "src/*"
+    ],
+    "scripts": {
+        "clean": "rm -rf \"$PWD/dist\""
+    },
+    "config": {
+        "entryPoints": [
+            "src/index.tsx"
+        ]
+    },
+    "dependencies": {},
+    "peerDependencies": {
+        "react": "^18.2.0"
+    }
+}
