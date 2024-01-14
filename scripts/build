@@ -2,10 +2,8 @@
 const esbuild = require('esbuild');
 const cssModulesPlugin = require('esbuild-css-modules-plugin');
 const ts = require('typescript');
-const rootTsConfig = require('../tsconfig.json');
 const path = require('path');
 const fs = require('fs');
-
 
 const packagesDir = path.resolve(process.cwd(), 'packages');
 const packages = fs.readdirSync(packagesDir).reduce((acc, dir) => {
@@ -81,7 +79,7 @@ const buildPromises = inOutFiles.reduce((acc, { cjsOutDir, esmOutDir, entryFile,
     minify: false,
     logLevel: 'info',
     banner: {
-      js: `import './index.css';`
+      js: `"use client"\nimport './index.css';`
     },
     tsconfig: path.join(process.cwd(), 'tsconfig.json'),
     plugins: [

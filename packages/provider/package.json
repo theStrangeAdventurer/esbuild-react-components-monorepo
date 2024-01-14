@@ -1,7 +1,7 @@
 {
-    "name": "@esbuild-libs/button",
+    "name": "@esbuild-libs/provider",
     "version": "0.1.0",
-    "description": "A button component",
+    "description": "A provider component",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
@@ -18,8 +18,7 @@
         ]
     },
     "dependencies": {
-        "@esbuild-libs/typography": ">=0.x",
-        "@esbuild-libs/provider": ">=0.x"
+        "@esbuild-libs/typography": ">=0.x"
     },
     "peerDependencies": {
         "react": "^18.2.0",
