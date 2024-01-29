@@ -8,7 +8,7 @@ const fs = require('fs');
 const packagesDir = path.resolve(process.cwd(), 'packages');
 const packages = fs.readdirSync(packagesDir).reduce((acc, dir) => {
   const pkg = require(path.join(packagesDir, dir, 'package.json'));
-  if (Boolean(pkg)) {
+  if (Boolean(pkg) && pkg.config) {
     acc.push(Object.assign(pkg, { config: { ...(pkg.config || {}), dir } }));
   }
 

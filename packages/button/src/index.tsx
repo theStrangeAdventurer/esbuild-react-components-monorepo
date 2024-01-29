@@ -4,7 +4,9 @@ import { Typography } from '@esbuild-libs/typography'
 import { useProviderContext } from '@esbuild-libs/provider'
 import cn from 'classnames'
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  testPropsValue: string
+}
 
 export const Button: React.FC<ButtonProps> = (props) => {
   const { children, className, ...rest } = props
