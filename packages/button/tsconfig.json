@@ -1,0 +1,7 @@
+{
+  "extends": "@esbuild-libs/tsconfig",
+  "include": [
+    "src/**/*",
+    "declaration.d.ts"
+  ]
+}
